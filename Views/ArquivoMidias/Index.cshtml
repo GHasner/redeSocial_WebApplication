@@ -1,0 +1,47 @@
+﻿@model IEnumerable<redeSocial.Models.ArquivoMidia>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.tipoArquivo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.nomeArmazenamento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.post)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.tipoArquivo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.nomeArmazenamento)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.post.postID)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.arquivoID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.arquivoID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.arquivoID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

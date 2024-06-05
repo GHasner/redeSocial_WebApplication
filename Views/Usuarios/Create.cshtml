@@ -1,0 +1,56 @@
+﻿@model redeSocial.Models.Usuario
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<input type="text" id="alertOnCreate" value="@ViewBag.Message" hidden>
+
+<h1>Criar Conta</h1>
+
+<h4>Insira os dados abaixo:</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="nomeUsuario" class="control-label"></label>
+                <input asp-for="nomeUsuario" class="form-control" />
+                <span asp-validation-for="nomeUsuario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="nome" class="control-label"></label>
+                <input asp-for="nome" class="form-control" />
+                <span asp-validation-for="nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="telefone" class="control-label"></label>
+                <input asp-for="telefone" class="form-control" />
+                <span asp-validation-for="telefone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="email" class="control-label"></label>
+                <input asp-for="email" class="form-control" />
+                <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="senha" class="control-label"></label>
+                <input asp-for="senha" class="form-control" />
+                <span asp-validation-for="senha" class="text-danger"></span>
+            </div>
+            <div class="padding-vertical"></div>
+            <div class="form-group d-flex">
+                <input type="submit" asp-action="Create" value="Cadastrar" class="btn btn-primary" onclick="userCreated()" />
+                <div class="padding-horizontal"></div>
+                <a asp-action="Login" class="btn btn-secondary">Fazer Login</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

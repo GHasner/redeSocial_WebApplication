@@ -1,0 +1,35 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+
+
+
+
+
+.padding-vertical {
+    height: 20px;
+}
+
+.padding-horizontal {
+    width: 28px;
+}
+
+.line-height {
+    height: 28px;
+}

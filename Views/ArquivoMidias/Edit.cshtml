@@ -1,0 +1,44 @@
+﻿@model redeSocial.Models.ArquivoMidia
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>ArquivoMidia</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="arquivoID" />
+            <div class="form-group">
+                <label asp-for="tipoArquivo" class="control-label"></label>
+                <input asp-for="tipoArquivo" class="form-control" />
+                <span asp-validation-for="tipoArquivo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="nomeArmazenamento" class="control-label"></label>
+                <input asp-for="nomeArmazenamento" class="form-control" />
+                <span asp-validation-for="nomeArmazenamento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="postID" class="control-label"></label>
+                <select asp-for="postID" class="form-control" asp-items="ViewBag.postID"></select>
+                <span asp-validation-for="postID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
