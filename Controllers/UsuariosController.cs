@@ -38,16 +38,13 @@ namespace redeSocial_WebApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(string nomeUsuario, string senha)
         {
-            string un = username;
-            string p = password;
-
             // Buscar o usuário no banco de dados pelo nome de usuário (ou outro critério de identificação)
-            var user = await _context.Usuarios.FirstOrDefaultAsync(m => m.nomeUsuario == un);
+            var user = await _context.Usuarios.FirstOrDefaultAsync(m => m.nomeUsuario == nomeUsuario);
 
             // Verifica se o usuário foi encontrado e se a senha está correta
-            if (user != null && user.senha == p)
+            if (user != null && user.senha == senha)
             {
 
                 HttpContext.Session.SetString("UserLoggedIn", user.usuarioID.ToString());
@@ -66,6 +63,7 @@ namespace redeSocial_WebApplication.Controllers
         }
 
         // GET: Usuarios
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             // Verifica se o usuário está logado
@@ -82,7 +80,7 @@ namespace redeSocial_WebApplication.Controllers
                     {
                         // Qualquer valor obtido no BD pode ser resgatado aqui
                     }
-                    return RedirectToAction("Index", "Usuarios");
+                    return View(currentUser);
                 }
             }
             return RedirectToAction("Login", "Usuarios");
