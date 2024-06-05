@@ -25,6 +25,6 @@ namespace redeSocial.Models
 
         [JsonIgnore]
         [NotMapped]
-        public List<Comentario> comentarios { get; set; }
+        public List<Comentario>? comentarios { get; set; }
     }
 }

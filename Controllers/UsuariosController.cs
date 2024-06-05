@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -147,6 +148,19 @@ namespace redeSocial_WebApplication.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            // Analise e Visualização de Erros
+            StringBuilder errorMessages = new StringBuilder();
+            Console.WriteLine("Total de erros encontrados: " + ModelState.ErrorCount);
+            foreach (var modelState in ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    errorMessages.AppendLine(error.ErrorMessage);
+                    Console.WriteLine(error.ErrorMessage);
+                }
+            }
+            // Display the error messages to the user
+            ModelState.AddModelError("", errorMessages.ToString());
             return View(usuario);
         }
 
