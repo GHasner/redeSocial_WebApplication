@@ -76,10 +76,7 @@ namespace redeSocial_WebApplication.Controllers
                 {
                     var currentUser = await _context.Usuarios.FirstOrDefaultAsync(m => m.usuarioID == int.Parse(userId));
 
-                    if (currentUser != null)
-                    {
-                        // Qualquer valor obtido no BD pode ser resgatado aqui
-                    }
+                    if (currentUser != null) { }
                     return View(currentUser);
                 }
             }
