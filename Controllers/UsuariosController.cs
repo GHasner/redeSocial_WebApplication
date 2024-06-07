@@ -54,7 +54,7 @@ namespace redeSocial_WebApplication.Controllers
                 HttpContext.Session.SetString("LoginValidation", "Success");
 
                 // Redireciona para a página inicial após o login
-                return RedirectToAction("Index", "Usuarios");
+                return RedirectToAction("Index", "Postagens");
             }
 
             HttpContext.Session.SetString("LoginValidation", "Fail");

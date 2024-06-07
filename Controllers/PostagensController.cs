@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using MessagePack.Formatters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using redeSocial.Models;
+using SQLitePCL;
 
 namespace redeSocial_WebApplication.Controllers
 {
@@ -21,8 +25,16 @@ namespace redeSocial_WebApplication.Controllers
         // GET: Postagens
         public async Task<IActionResult> Index()
         {
+            ViewBag.Arquivo = _context.Arquivos.ToListAsync();
             var contexto = _context.Postagens.Include(p => p.usuario);
             return View(await contexto.ToListAsync());
+        }
+
+        public static ArquivoMidia? Arquivo(List<ArquivoMidia> arquivos, int postID)
+        {
+            int index = arquivos.FindIndex(x => x.postID == postID);
+            if (index == -1) return null;
+            return arquivos[index];
         }
 
         // GET: Postagens/Details/5
