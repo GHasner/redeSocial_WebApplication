@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using redeSocial.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace redeSocial_WebApplication.Controllers
 {
@@ -18,54 +20,96 @@ namespace redeSocial_WebApplication.Controllers
             _context = context;
         }
 
-        // GET: ArquivoMidias
-        public async Task<IActionResult> Index()
-        {
-            var contexto = _context.Arquivos.Include(a => a.post);
-            return View(await contexto.ToListAsync());
-        }
-
-        // GET: ArquivoMidias/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Arquivos == null)
-            {
-                return NotFound();
-            }
-
-            var arquivoMidia = await _context.Arquivos
-                .Include(a => a.post)
-                .FirstOrDefaultAsync(m => m.arquivoID == id);
-            if (arquivoMidia == null)
-            {
-                return NotFound();
-            }
-
-            return View(arquivoMidia);
-        }
-
-        // GET: ArquivoMidias/Create
-        public IActionResult Create()
-        {
-            ViewData["postID"] = new SelectList(_context.Postagens, "postID", "postID");
-            return View();
-        }
-
-        // POST: ArquivoMidias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("arquivoID,tipoArquivo,nomeArmazenamento,postID")] ArquivoMidia arquivoMidia)
+        public void Upload(ArquivoMidia midia, IFormFile arquivo)
         {
-            if (ModelState.IsValid)
+            // NOME DE ARMAZENAMENTO DO ARQUIVO
+            string nomeArquivo = Path.GetFileName(arquivo.FileName);
+            string extensaoArquivo = Path.GetExtension(arquivo.FileName).ToLower();
+            string nomeArmazenamento = nomeArquivo + "-ID" + midia.arquivoID + extensaoArquivo;
+
+
+            // Aponta para onde o arquivo será gravado(Não esqueça de criar o diretório)
+            string caminhoArquivo = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", nomeArmazenamento);
+
+            // Grava o arquivo no servidor
+            using (var stream = new FileStream(caminhoArquivo, FileMode.Create))
             {
-                _context.Add(arquivoMidia);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                arquivo.CopyTo(stream);
             }
-            ViewData["postID"] = new SelectList(_context.Postagens, "postID", "postID", arquivoMidia.postID);
-            return View(arquivoMidia);
+
+            // Extensões de vídeo
+            List<string> videoExt = new List<string>
+            {
+                ".asf",
+                ".wma",
+                ".wmv",
+                ".wmz",
+                ".mp4",
+                ".mov",
+                ".mkv",
+                ".webm",
+                ".flv",
+                ".swf",
+                ".3gp",
+                ".aac",
+                ".m4v",
+                ".ogg",
+                ".vob",
+                ".wmvhd",
+                ".amv",
+                ".amv3",
+                ".asx",
+                ".divx",
+                ".dvr",
+                ".f4v",
+                ".gif",
+                ".m2ts",
+                ".m4a",
+                ".mts",
+                ".mxp",
+                ".ogv",
+                ".qt",
+                ".ts",
+                ".vp8",
+                ".vp9",
+                ".xavc"
+            };
+
+            // Extensões de imagem
+            List<string> imgExt = new List<string>
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".bmp",
+                ".tiff",
+                ".ico",
+                ".pcx",
+                ".pict",
+                ".wmf",
+                ".emf",
+                ".svg",
+                ".psd"
+            };
+
+            if (videoExt.Contains(extensaoArquivo))
+            {
+                midia.tipoArquivo = "img";
+            } else if (imgExt.Contains(extensaoArquivo))
+            {
+                midia.tipoArquivo = "video";
+            } else
+            {
+                midia.tipoArquivo = "";
+            }
+
+            midia.nomeArmazenamento = nomeArmazenamento;
+            //Grava dados no Banco de dados.
+            _context.Add(midia);
+            _context.SaveChanges();
         }
 
         // GET: ArquivoMidias/Edit/5

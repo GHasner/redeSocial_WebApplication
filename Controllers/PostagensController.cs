@@ -68,11 +68,20 @@ namespace redeSocial_WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("postID,conteudoTxt,usuarioID")] Postagem postagem)
+        public async Task<IActionResult> Create([Bind("postID,conteudoTxt,usuarioID")] Postagem postagem, IFormFile arquivo, ArquivoMidia? midia)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(postagem);
+
+                var arqRecebido = Request.Form.Files["arquivo"];
+                if (arqRecebido != null && arqRecebido.Length > 0)
+                {
+                    ArquivoMidiasController arqController = new ArquivoMidiasController(_context);
+                    midia.postID = postagem.postID;
+                    midia.post = postagem;
+                    arqController.Upload(midia, arqRecebido);
+                }
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
