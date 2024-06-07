@@ -113,20 +113,18 @@ namespace redeSocial_WebApplication.Controllers
         }
 
         // GET: ArquivoMidias/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async void Edit(int? id)
         {
             if (id == null || _context.Arquivos == null)
             {
-                return NotFound();
+                return;
             }
-
             var arquivoMidia = await _context.Arquivos.FindAsync(id);
             if (arquivoMidia == null)
             {
-                return NotFound();
+                return;
             }
             ViewData["postID"] = new SelectList(_context.Postagens, "postID", "postID", arquivoMidia.postID);
-            return View(arquivoMidia);
         }
 
         // POST: ArquivoMidias/Edit/5
@@ -134,11 +132,11 @@ namespace redeSocial_WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("arquivoID,tipoArquivo,nomeArmazenamento,postID")] ArquivoMidia arquivoMidia)
+        public async void Edit(int id, [Bind("arquivoID,tipoArquivo,nomeArmazenamento,postID")] ArquivoMidia arquivoMidia)
         {
             if (id != arquivoMidia.arquivoID)
             {
-                return NotFound();
+                return;
             }
 
             if (ModelState.IsValid)
@@ -152,17 +150,15 @@ namespace redeSocial_WebApplication.Controllers
                 {
                     if (!ArquivoMidiaExists(arquivoMidia.arquivoID))
                     {
-                        return NotFound();
+                        return;
                     }
                     else
                     {
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             ViewData["postID"] = new SelectList(_context.Postagens, "postID", "postID", arquivoMidia.postID);
-            return View(arquivoMidia);
         }
 
         // GET: ArquivoMidias/Delete/5
@@ -187,20 +183,20 @@ namespace redeSocial_WebApplication.Controllers
         // POST: ArquivoMidias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async void DeleteConfirmed(int id)
         {
             if (_context.Arquivos == null)
             {
-                return Problem("Entity set 'Contexto.Arquivos'  is null.");
+                // return Problem("Entity set 'Contexto.Arquivos'  is null.");
+                return;
             }
             var arquivoMidia = await _context.Arquivos.FindAsync(id);
             if (arquivoMidia != null)
             {
+                System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", arquivoMidia.nomeArmazenamento));
                 _context.Arquivos.Remove(arquivoMidia);
+                await _context.SaveChangesAsync();
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool ArquivoMidiaExists(int id)
