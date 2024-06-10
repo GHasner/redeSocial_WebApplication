@@ -26,5 +26,9 @@ namespace redeSocial.Models
         [JsonIgnore]
         [NotMapped]
         public List<Comentario>? comentarios { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public ArquivoMidia? midia { get; set; } = null;
     }
 }
