@@ -24,17 +24,20 @@ namespace redeSocial_WebApplication.Controllers
 
         // GET: Postagens
         public async Task<IActionResult> Index()
-        {
-            ViewBag.Arquivo = _context.Arquivos.ToListAsync();
+        {            
             var contexto = _context.Postagens.Include(p => p.usuario);
-            return View(await contexto.ToListAsync());
-        }
+            List<Postagem>? postagens = await contexto.ToListAsync();
+            if (postagens != null && postagens.Count > 0)
+            {
+                List<ArquivoMidia> arquivos = await _context.Arquivos.ToListAsync();
+                foreach (ArquivoMidia arquivo in arquivos)
+                {
+                    int i = postagens.FindIndex(x => x.postID == arquivo.postID);
+                    postagens[i].midia = arquivo;
+                }
 
-        public static ArquivoMidia? Arquivo(List<ArquivoMidia> arquivos, int postID)
-        {
-            int index = arquivos.FindIndex(x => x.postID == postID);
-            if (index == -1) return null;
-            return arquivos[index];
+            }
+            return View(postagens);
         }
 
         // GET: Postagens/Details/5
@@ -52,8 +55,105 @@ namespace redeSocial_WebApplication.Controllers
             {
                 return NotFound();
             }
+            var arquivo = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+            if (arquivo != null)
+            {
+                postagem.midia = arquivo;
+            }
 
             return View(postagem);
+        }
+
+        public void UploadArquivoMidia(ArquivoMidia midia, IFormFile arquivo)
+        {
+            // NOME DE ARMAZENAMENTO DO ARQUIVO
+            string nomeArquivo = Path.GetFileName(arquivo.FileName);
+            string extensaoArquivo = Path.GetExtension(arquivo.FileName).ToLower();
+            string nomeArmazenamento = nomeArquivo + "-ID" + midia.arquivoID + extensaoArquivo;
+
+
+            // Aponta para onde o arquivo será gravado(Não esqueça de criar o diretório)
+            string caminhoArquivo = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", nomeArmazenamento);
+
+            // Grava o arquivo no servidor
+            using (var stream = new FileStream(caminhoArquivo, FileMode.Create))
+            {
+                arquivo.CopyTo(stream);
+            }
+
+            // Extensões de vídeo
+            List<string> videoExt = new List<string>
+            {
+                ".asf",
+                ".wma",
+                ".wmv",
+                ".wmz",
+                ".mp4",
+                ".mov",
+                ".mkv",
+                ".webm",
+                ".flv",
+                ".swf",
+                ".3gp",
+                ".aac",
+                ".m4v",
+                ".ogg",
+                ".vob",
+                ".wmvhd",
+                ".amv",
+                ".amv3",
+                ".asx",
+                ".divx",
+                ".dvr",
+                ".f4v",
+                ".gif",
+                ".m2ts",
+                ".m4a",
+                ".mts",
+                ".mxp",
+                ".ogv",
+                ".qt",
+                ".ts",
+                ".vp8",
+                ".vp9",
+                ".xavc"
+            };
+
+            // Extensões de imagem
+            List<string> imgExt = new List<string>
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".bmp",
+                ".tiff",
+                ".ico",
+                ".pcx",
+                ".pict",
+                ".wmf",
+                ".emf",
+                ".svg",
+                ".psd"
+            };
+
+            if (videoExt.Contains(extensaoArquivo))
+            {
+                midia.tipoArquivo = "img";
+            }
+            else if (imgExt.Contains(extensaoArquivo))
+            {
+                midia.tipoArquivo = "video";
+            }
+            else
+            {
+                midia.tipoArquivo = "";
+            }
+
+            midia.nomeArmazenamento = nomeArmazenamento;
+            //Grava dados no Banco de dados.
+            _context.Arquivos.Add(midia);
+            _context.SaveChanges();
         }
 
         // GET: Postagens/Create
@@ -80,7 +180,7 @@ namespace redeSocial_WebApplication.Controllers
                     ArquivoMidiasController arqController = new ArquivoMidiasController(_context);
                     midia.postID = postagem.postID;
                     midia.post = postagem;
-                    arqController.Upload(midia, arqRecebido);
+                    UploadArquivoMidia(midia, arqRecebido);
                 }
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -103,6 +203,11 @@ namespace redeSocial_WebApplication.Controllers
                 return NotFound();
             }
             ViewData["usuarioID"] = new SelectList(_context.Usuarios, "usuarioID", "usuarioID", postagem.usuarioID);
+            var arquivo = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+            if (arquivo != null)
+            {
+                postagem.midia = arquivo;
+            }
             return View(postagem);
         }
 
@@ -111,7 +216,7 @@ namespace redeSocial_WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("postID,conteudoTxt,usuarioID")] Postagem postagem)
+        public async Task<IActionResult> Edit(int id, [Bind("postID,conteudoTxt,usuarioID")] Postagem postagem, IFormFile arquivo, ArquivoMidia? midia)
         {
             if (id != postagem.postID)
             {
@@ -122,6 +227,26 @@ namespace redeSocial_WebApplication.Controllers
             {
                 try
                 {
+                    var arquivoOld = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+                    if (arquivoOld != null) // TINHA mídia
+                    {
+                        var arqRecebido = Request.Form.Files["arquivo"];
+                        if (arqRecebido != null && arqRecebido.Length > 0) // Tem mídia
+                        {
+                            // Edit ArquivoMidia
+                        }
+                        else // Não tem mídia
+                        {
+                            // Delete ArquivoMidia
+                        }
+                    } else // NÃO TINHA mídia
+                    {
+                        var arqRecebido = Request.Form.Files["arquivo"];
+                        if (arqRecebido != null && arqRecebido.Length > 0) // Tem midia
+                        {
+                            // Create ArquivoMidia
+                        }
+                    }
                     _context.Update(postagem);
                     await _context.SaveChangesAsync();
                 }
@@ -139,6 +264,14 @@ namespace redeSocial_WebApplication.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["usuarioID"] = new SelectList(_context.Usuarios, "usuarioID", "usuarioID", postagem.usuarioID);
+            
+            // Substituir
+            var arquivoAtual = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+            if (arquivoAtual != null)
+            {
+                postagem.midia = arquivoAtual;
+            }
+            //
             return View(postagem);
         }
 
@@ -158,6 +291,11 @@ namespace redeSocial_WebApplication.Controllers
                 return NotFound();
             }
 
+            var arquivo = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+            if (arquivo != null)
+            {
+                postagem.midia = arquivo;
+            }
             return View(postagem);
         }
 
@@ -173,6 +311,7 @@ namespace redeSocial_WebApplication.Controllers
             var postagem = await _context.Postagens.FindAsync(id);
             if (postagem != null)
             {
+                // Remover ArquivoMidia
                 _context.Postagens.Remove(postagem);
             }
             
