@@ -19,10 +19,23 @@ namespace redeSocial_WebApplication.Controllers
         }
 
         // GET: Comentarios
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(Postagem postagem)
         {
-            var contexto = _context.Comentarios.Include(c => c.post).Include(c => c.usuario);
-            return View(await contexto.ToListAsync());
+            var comentarios = await _context.Comentarios.Include(c => c.post).Include(c => c.usuario).Where(c => c.postID == postagem.postID).ToListAsync();
+            postagem.comentarios = comentarios;
+            if (HttpContext.Session.GetString("UserLoggedIn") != null || HttpContext.Session.GetString("UserLoggedIn") != "")
+            {
+                // Salva o userID em uma variável para consultar informações do usuário no BD
+                int userId = int.Parse(HttpContext.Session.GetString("UserLoggedIn")!);
+
+                if (postagem.usuarioID == userId)
+                {
+                    postagem.pertenceAoUsuario = true;
+                    return View(postagem);
+                }
+            }
+            postagem.pertenceAoUsuario = false;
+            return View(postagem);
         }
 
         // GET: Comentarios/Details/5
