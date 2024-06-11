@@ -30,5 +30,9 @@ namespace redeSocial.Models
         [JsonIgnore]
         [NotMapped]
         public ArquivoMidia? midia { get; set; } = null;
+
+        [JsonIgnore]
+        [NotMapped]
+        public bool? pertenceAoUsuario { get; set; }
     }
 }
