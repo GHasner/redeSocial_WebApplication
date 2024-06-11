@@ -67,9 +67,8 @@ namespace redeSocial_WebApplication.Controllers
         public void UploadArquivoMidia(ArquivoMidia midia, IFormFile arquivo)
         {
             // NOME DE ARMAZENAMENTO DO ARQUIVO
-            string nomeArquivo = Path.GetFileName(arquivo.FileName);
             string extensaoArquivo = Path.GetExtension(arquivo.FileName).ToLower();
-            string nomeArmazenamento = nomeArquivo + "-ID" + midia.arquivoID + extensaoArquivo;
+            string nomeArmazenamento = "postID" + Auxiliar.fixedDigits(midia.postID, 8) + "arqID" + Auxiliar.fixedDigits(midia.arquivoID, 8) + extensaoArquivo;
 
 
             // Aponta para onde o arquivo será gravado(Não esqueça de criar o diretório)
@@ -233,18 +232,35 @@ namespace redeSocial_WebApplication.Controllers
                         var arqRecebido = Request.Form.Files["arquivo"];
                         if (arqRecebido != null && arqRecebido.Length > 0) // Tem mídia
                         {
-                            // Edit ArquivoMidia
+                            if (arqRecebido.Equals(arquivoOld))
+                            {
+                                // Não houve alteração
+                            } else
+                            {
+                                // Delete ArquivoMidia
+                                System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", arquivoOld.nomeArmazenamento!));
+                                _context.Arquivos.Remove(arquivoOld);
+                                // Insert ArquivoMidia
+                                midia.postID = postagem.postID;
+                                midia.post = postagem;
+                                UploadArquivoMidia(midia, arqRecebido);
+                            }
                         }
                         else // Não tem mídia
                         {
                             // Delete ArquivoMidia
+                            System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", arquivoOld.nomeArmazenamento!));
+                            _context.Arquivos.Remove(arquivoOld);
                         }
                     } else // NÃO TINHA mídia
                     {
                         var arqRecebido = Request.Form.Files["arquivo"];
                         if (arqRecebido != null && arqRecebido.Length > 0) // Tem midia
                         {
-                            // Create ArquivoMidia
+                            // Insert ArquivoMidia
+                            midia.postID = postagem.postID;
+                            midia.post = postagem;
+                            UploadArquivoMidia(midia, arqRecebido);
                         }
                     }
                     _context.Update(postagem);
@@ -311,7 +327,12 @@ namespace redeSocial_WebApplication.Controllers
             var postagem = await _context.Postagens.FindAsync(id);
             if (postagem != null)
             {
-                // Remover ArquivoMidia
+                var arquivo = await _context.Arquivos.FirstOrDefaultAsync(x => x.postID == postagem.postID);
+                if (arquivo != null)
+                {
+                    System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "arquivos", arquivo.nomeArmazenamento!));
+                    _context.Arquivos.Remove(arquivo);
+                }
                 _context.Postagens.Remove(postagem);
             }
             
