@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace redeSocial.Models
 {
@@ -33,5 +34,9 @@ namespace redeSocial.Models
         [Column("visible")]
         [Display(Name = "Visível")]
         public bool visible { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public bool? pertenceAoUsuario { get; set; }
     }
 }
