@@ -21,23 +21,38 @@ namespace redeSocial_WebApplication.Controllers
         // GET: Comentarios
         public async Task<IActionResult> Index(Postagem postagem)
         {
-            var comentarios = await _context.Comentarios.Include(c => c.post).Include(c => c.usuario).Where(c => c.postID == postagem.postID).ToListAsync();
-            postagem.comentarios = comentarios;
             if (HttpContext.Session.GetString("UserLoggedIn") != null || HttpContext.Session.GetString("UserLoggedIn") != "")
             {
                 // Salva o userID em uma variável para consultar informações do usuário no BD
                 int userId = int.Parse(HttpContext.Session.GetString("UserLoggedIn")!);
 
+                var comentarios = await _context.Comentarios.Include(c => c.post).Include(c => c.usuario).Where(c => c.postID == postagem.postID).ToListAsync();
+                // Ve se a postagem selecionada pertence ao usuário logado
                 if (postagem.usuarioID == userId)
                 {
                     postagem.pertenceAoUsuario = true;
-                    return View(postagem);
+                } else
+                {
+                    postagem.pertenceAoUsuario = false;
                 }
+                // Diferencia os comentários da postagem selecionada pertencentes ao usuário logado
+                for (int i = 0; i < comentarios.Count; i++)
+                {
+                    if (comentarios[i].usuarioID == userId)
+                    {
+                        comentarios[i].pertenceAoUsuario = true;
+                    } else
+                    {
+                        comentarios[i].pertenceAoUsuario = false;
+                    }
+                }
+                postagem.comentarios = comentarios;
+                return View(postagem);
             }
-            postagem.pertenceAoUsuario = false;
-            return View(postagem);
+            return NotFound();
         }
 
+        /* NO CURRENT USE
         // GET: Comentarios/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -57,6 +72,7 @@ namespace redeSocial_WebApplication.Controllers
 
             return View(comentario);
         }
+        */
 
         // GET: Comentarios/Create
         public IActionResult Create()
