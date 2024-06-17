@@ -21,8 +21,14 @@ namespace redeSocial_WebApplication.Controllers
         // GET: Banimentos
         public async Task<IActionResult> Index()
         {
-            var contexto = _context.Banimentos.Include(b => b.usuario).Include(b => b.usuarioBan);
-            return View(await contexto.ToListAsync());
+            if (HttpContext.Session.GetString("UserLoggedIn") != null || HttpContext.Session.GetString("UserLoggedIn") != "")
+            {
+                int userId = int.Parse(HttpContext.Session.GetString("UserLoggedIn")!);
+
+                var banimentos = await _context.Banimentos.Include(b => b.usuario).Include(b => b.usuarioBan).Where(x => x.usuarioID == userId).ToListAsync();
+                return View(banimentos);
+            }
+            return NotFound();
         }
 
         // GET: Banimentos/Details/5
