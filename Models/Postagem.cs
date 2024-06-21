@@ -33,6 +33,10 @@ namespace redeSocial.Models
 
         [JsonIgnore]
         [NotMapped]
-        public bool? pertenceAoUsuario { get; set; }
+        public bool pertenceAoUsuario { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public Usuario? usuarioLogado { get; set; }
     }
 }
