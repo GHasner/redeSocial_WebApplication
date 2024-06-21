@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using redeSocial.Models;
+using redeSocial_WebApplication.Models;
 using SQLitePCL;
 
 namespace redeSocial_WebApplication.Controllers
@@ -24,7 +25,11 @@ namespace redeSocial_WebApplication.Controllers
 
         // GET: Postagens
         public async Task<IActionResult> Index()
-        {            
+        {
+            // Salva o userID em uma variável para consultar informações do usuário no BD
+            int userId = int.Parse(HttpContext.Session.GetString("UserLoggedIn")!);
+            Usuario? currentUser = await _context.Usuarios.FirstOrDefaultAsync(m => m.usuarioID == userId);
+
             var contexto = _context.Postagens.Include(p => p.usuario);
             List<Postagem>? postagens = await contexto.ToListAsync();
             if (postagens != null && postagens.Count > 0)
@@ -37,7 +42,12 @@ namespace redeSocial_WebApplication.Controllers
                 }
 
             }
-            return View(postagens);
+
+            Sessao sessao = new Sessao();
+            sessao.postagens = postagens;
+            sessao.usuarioLogado = currentUser;
+
+            return View(sessao);
         }
 
         // GET: Postagens/Details/5

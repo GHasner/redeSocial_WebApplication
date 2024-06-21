@@ -25,6 +25,7 @@ namespace redeSocial_WebApplication.Controllers
             {
                 // Salva o userID em uma variável para consultar informações do usuário no BD
                 int userId = int.Parse(HttpContext.Session.GetString("UserLoggedIn")!);
+                ViewBag.usuarioID = userId;
 
                 var comentarios = await _context.Comentarios.Include(c => c.post).Include(c => c.usuario).Where(c => c.postID == postagem.postID).ToListAsync();
                 // Ve se a postagem selecionada pertence ao usuário logado
