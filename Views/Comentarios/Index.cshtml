@@ -1,53 +1,69 @@
-﻿@model IEnumerable<redeSocial.Models.Comentario>
+﻿@model redeSocial.Models.Postagem
 
 @{
     ViewData["Title"] = "Index";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.post)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.usuario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.comentario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.visible)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.post.postID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.usuario.usuarioID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.comentario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.visible)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.comentID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.comentID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.comentID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<button type="button" asp-action="Index">X</button>
+<div> <!-- Container Principal -->
+    <div> <!-- Post (Esquerda) -->
+        <a>
+            @Html.DisplayFor(model => model.usuario!.nome)
+        </a>
+        <p>
+            @Html.DisplayFor(model => model.conteudoTxt)
+        </p>
+        <div>
+            @{
+                if (Model.midia != null)
+                {
+                    switch (Model.midia.tipoArquivo)
+                    {
+                        case "img":
+                            <img src="@Model.midia.nomeArmazenamento" />
+                            break;
+                        case "video":
+                            <video controls><source src="@Model.midia.nomeArmazenamento" /></video>
+                            break;
+                    }
+                }
+            }
+        </div>
+    </div>
+    <div> <!-- Comentários (Direita) -->
+        @if (Model.comentarios != null) {
+            @foreach (var item in Model.comentarios)
+{
+                @if (item.visible)
+                {
+                    <div> <!-- Comentário -->
+                        @if (!(item.pertenceAoUsuario))
+                        {
+                            <a>@item.usuario!.nomeUsuario</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->
+                        } else {
+                            <p>@item.usuario!.nomeUsuario</p>
+                        }
+                        <p>@item.comentario</p>
+                    </div>
+                    @if(item.pertenceAoUsuario) {
+                        <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EDITAR e EXCLUIR -->
+                    } else if (Model.pertenceAoUsuario) {
+                        <a>...</a> <!-- Substituir <a/> por um dropdown com a opção de OCULTAR Comentario -->
+                    }
+                }
+                else if (Model.pertenceAoUsuario) {
+                    <p>Comentário oculto de @item.usuario!.nomeUsuario</p>
+                    <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EXIBIR Comentário e REMOVER Restrição de Visibilidade -->
+                }
+            }
+        } else {
+            <p>Nenhum comentário ainda.</p>
+        }
+        <form asp-controller="Comentarios" asp-action="Create"> <!-- Adicionar Comentário -->
+            <select asp-for="postID" class="form-control" hidden>@Model.postID</select>
+            <select asp-for="usuarioID" class="form-control" asp-items="@ViewBag.usuarioID" hidden></select>
+            <input asp-for="comentario" class="form-control" />
+            <input class="form-check-input" asp-for="visible" value="true" hidden/>
+            <input type="submit" value="Enviar" class="btn btn-primary"/>
+        </form>
+    </div>
+</div>
