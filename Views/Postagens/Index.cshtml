@@ -1,43 +1,41 @@
-﻿@model IEnumerable<redeSocial.Models.Postagem>
+﻿@model redeSocial.Models.Sessao
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div>
+    <a>Feed</a>
+    <a asp-action="Perfil" asp-route-postagem="@Model.usuarioLogado">Perfil</a>
+</div>
 
-<p>
-    <a asp-action="Create">Nova Postagem</a>
-</p>
-<table class="table">
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.usuario!.nome)
-            </td>
-            <td>
-            </td>
-                @Html.DisplayFor(modelItem => item.conteudoTxt)
-            <td>
-            </td>
+<button type="button" asp-action="Create">Nova Postagem</button> <!-- Reposicionar -->
+
+@if (Model.postagens != null) {
+    @foreach (var item in Model.postagens) {
+        <div> <!-- Container da Postagem -->
+            @if (item.pertenceAoUsuario) {
+                <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EDITAR e EXCLUIR -->
+            }
+            <a>@Html.DisplayFor(modelItem => item.usuario!.nome)</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->       
+            <p>@Html.DisplayFor(modelItem => item.conteudoTxt)</p>
+            <div>
                 @{
-                    var loadMidia = redeSocial_WebApplication.Controllers.PostagensController.Arquivo(ViewBag.Arquivo, item.postID);                    
-                    if (loadMidia != null)
+                    if (item.midia != null)
                     {
-                        string arquivePath = Directory.GetCurrentDirectory() + "/wwwroot/arquivos/" + loadMidia.nomeArmazenamento;
-                        switch (loadMidia.tipoArquivo)
+                        switch (item.midia.tipoArquivo)
                         {
                             case "img":
-                                <img src="@arquivePath"/>
+                                <img src="@item.midia.nomeArmazenamento"/>
                                 break;
                             case "video":
-                                <video controls><source src="@arquivePath"/></video>
+                                <video controls><source src="@item.midia.nomeArmazenamento"/></video>
                                 break;
                         }
                     }
                 }
-        </tr>
+            </div>
+            <button type="button" asp-controller="Comentarios" asp-action="Index" asp-route-postagem="@item">Exibir Comentários</button>
+        </div>
+    }
 }
-    </tbody>
-</table>
