@@ -92,6 +92,9 @@ namespace redeSocial_WebApplication.Controllers
         {
             if (ModelState.IsValid)
             {
+                comentario.postID = ViewBag.postID;
+                comentario.usuarioID = ViewBag.usuarioID;
+                comentario.visible = true;
                 _context.Add(comentario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
