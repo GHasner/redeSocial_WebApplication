@@ -31,39 +31,37 @@
     </div>
     <div> <!-- Comentários (Direita) -->
         @if (Model.comentarios != null) {
-            @foreach (var item in Model.comentarios)
+            @foreach (var comentario in Model.comentarios)
 {
-                @if (item.visible)
+                @if (comentario.visible)
                 {
                     <div> <!-- Comentário -->
-                        @if (!(item.pertenceAoUsuario))
+                        @if (!(comentario.pertenceAoUsuario))
                         {
-                            <a>@item.usuario!.nomeUsuario</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->
+                            <a>@comentario.usuario!.nomeUsuario</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->
                         } else {
-                            <p>@item.usuario!.nomeUsuario</p>
+                            <p>@comentario.usuario!.nomeUsuario</p>
                         }
-                        <p>@item.comentario</p>
+                        <p>@comentario.comentario</p>
                     </div>
-                    @if(item.pertenceAoUsuario) {
+                    @if(comentario.pertenceAoUsuario) {
                         <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EDITAR e EXCLUIR -->
                     } else if (Model.pertenceAoUsuario) {
                         <a>...</a> <!-- Substituir <a/> por um dropdown com a opção de OCULTAR Comentario -->
                     }
                 }
                 else if (Model.pertenceAoUsuario) {
-                    <p>Comentário oculto de @item.usuario!.nomeUsuario</p>
+                    <p>Comentário oculto de @comentario.usuario!.nomeUsuario</p>
                     <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EXIBIR Comentário e REMOVER Restrição de Visibilidade -->
                 }
             }
         } else {
             <p>Nenhum comentário ainda.</p>
         }
-        <form asp-controller="Comentarios" asp-action="Create"> <!-- Adicionar Comentário -->
-            <select asp-for="postID" class="form-control" hidden>@Model.postID</select>
-            <select asp-for="usuarioID" class="form-control" asp-items="@ViewBag.usuarioID" hidden></select>
-            <input asp-for="comentario" class="form-control" />
-            <input class="form-check-input" asp-for="visible" value="true" hidden/>
-            <input type="submit" value="Enviar" class="btn btn-primary"/>
-        </form>
+
+        @{
+            ViewBag.postID = Model.postID;
+        }
+        <partial name="Create"/>
     </div>
 </div>
