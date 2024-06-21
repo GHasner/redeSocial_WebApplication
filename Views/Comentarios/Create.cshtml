@@ -5,8 +5,10 @@
 }
 
 <form asp-controller="Comentarios" asp-action="Create">
-    <input asp-for="comentario" class="form-control" />
-    <input type="submit" value="Enviar" class="btn btn-primary" />
+    <input asp-for="comentario" class="form-control" placeholder="Adicione um comentário..."/>
+        <!-- Limpar input após submit -->
+    <input type="submit" value="Enviar" class="btn btn-primary"/>
+        <!-- Validar em Javascripts: (Não postar apenas espaços em branco) -->
 </form>
 
 @section Scripts {
