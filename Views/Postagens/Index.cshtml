@@ -12,24 +12,24 @@
 <button type="button" asp-action="Create">Nova Postagem</button> <!-- Reposicionar -->
 
 @if (Model.postagens != null) {
-    @foreach (var item in Model.postagens) {
+    @foreach (var postagem in Model.postagens) {
         <div> <!-- Container da Postagem -->
-            @if (item.pertenceAoUsuario) {
+            @if (postagem.pertenceAoUsuario) {
                 <a>...</a> <!-- Substituir <a/> por um dropdown com as opções EDITAR e EXCLUIR -->
             }
-            <a>@Html.DisplayFor(modelItem => item.usuario!.nome)</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->       
-            <p>@Html.DisplayFor(modelItem => item.conteudoTxt)</p>
+            <a>@Html.DisplayFor(modelItem => postagem.usuario!.nome)</a> <!-- Substituir <a/> por um dropdown com a opção de BLOQUEAR (Banir) Usuário -->
+            <p>@Html.DisplayFor(modelItem => postagem.conteudoTxt)</p>
             <div>
                 @{
-                    if (item.midia != null)
+                    if (postagem.midia != null)
                     {
-                        switch (item.midia.tipoArquivo)
+                        switch (postagem.midia.tipoArquivo)
                         {
                             case "img":
-                                <img src="@item.midia.nomeArmazenamento"/>
+                                <img src="@postagem.midia.nomeArmazenamento" />
                                 break;
                             case "video":
-                                <video controls><source src="@item.midia.nomeArmazenamento"/></video>
+                                <video controls><source src="@postagem.midia.nomeArmazenamento" /></video>
                                 break;
                         }
                     }
